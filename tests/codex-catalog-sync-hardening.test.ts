@@ -419,7 +419,7 @@ describe("Codex catalog sync hardening", () => {
 
     const rows = JSON.parse(readFileSync(catalogPath, "utf8")).models as Array<Record<string, unknown>>;
     expect(rows.find(row => row.slug === "team/gpt-daybreak-blue-latest")).toMatchObject({
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 872_000,
       auto_compact_token_limit: null,
       comp_hash: "3000",
@@ -465,7 +465,7 @@ describe("Codex catalog sync hardening", () => {
     const daybreak = rows.find(row => row.slug === "openai/gpt-daybreak-blue-latest");
     expect(daybreak).toMatchObject({
       display_name: "Daybreak Blue",
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 872_000,
       auto_compact_token_limit: null,
       comp_hash: "3000",

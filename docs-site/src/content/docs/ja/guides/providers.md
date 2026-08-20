@@ -359,7 +359,7 @@ Sol/Terra/Luna をフォールバックリストに入れています。
 
 | Codex 経路 | 事前登録されたモデル ID | Codex に表示されるコンテキスト |
 | --- | --- | --- |
-| Codex ログイン(Pool または Direct) | `gpt-5.6-*` | デフォルト 272,000 / 最大 872,000。Codex がスレッドウィンドウを選択 |
+| Codex ログイン(Pool または Direct) | `gpt-5.6-*` | 公称 600,000 / 最大 872,000。95% 適用後は 570,000 |
 | OpenAI (API キー) | `openai-apikey/gpt-5.6-*` と `*-pro` | 1,050,000 (max input 922,000) |
 | OpenRouter | `openrouter/openai/gpt-5.6-sol`、`openrouter/openai/gpt-5.6-terra`、`openrouter/openai/gpt-5.6-luna` | 1,050,000 |
 | Cursor | `cursor/gpt-5.6-sol`、`cursor/gpt-5.6-terra`、`cursor/gpt-5.6-luna` | 1,000,000 |

@@ -101,8 +101,8 @@ export function isUnsupportedOpenAiNativeSlug(slug: string): boolean {
 
 /** Conservative fixed window used by integrations that cannot negotiate Codex thread capacity. */
 export const NATIVE_GPT56_CONTEXT_WINDOW = 372_000;
-/** Codex's native catalog default before the session selects an expanded window. */
-export const NATIVE_GPT56_CATALOG_CONTEXT_WINDOW = 272_000;
+/** Nominal window for proxy-backed Codex sessions; Codex exposes 95% (570K) as usable. */
+export const NATIVE_GPT56_CATALOG_CONTEXT_WINDOW = 600_000;
 export const NATIVE_GPT56_MAX_CONTEXT_WINDOW = 872_000;
 
 interface NativeOpenAiContextOverride {

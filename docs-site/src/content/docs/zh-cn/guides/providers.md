@@ -335,7 +335,7 @@ GPT-5.6 Sol/Terra/Luna 会预置在提供商的回退列表中，因此即使实
 
 | Codex 路由 | 预置模型 id | Codex 中显示的上下文 |
 | --- | --- | --- |
-| Codex 登录（Pool 或 Direct） | `gpt-5.6-*` | 默认 272,000 / 最大 872,000；由 Codex 选择线程窗口 |
+| Codex 登录（Pool 或 Direct） | `gpt-5.6-*` | 标称 600,000 / 最大 872,000；应用 95% 后为 570,000 |
 | OpenAI (API key) | `openai-apikey/gpt-5.6-*` 和 `*-pro` | 1,050,000（max input 922,000） |
 | OpenRouter | `openrouter/openai/gpt-5.6-sol`、`openrouter/openai/gpt-5.6-terra`、`openrouter/openai/gpt-5.6-luna` | 1,050,000 |
 | Cursor | `cursor/gpt-5.6-sol`、`cursor/gpt-5.6-terra`、`cursor/gpt-5.6-luna` | 1,000,000 |

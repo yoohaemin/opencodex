@@ -65,7 +65,7 @@ visibility = "list"
 
 | 路由 | 选择器 id 与目录元数据 |
 | --- | --- |
-| Codex 登录（账户限定的选择器行未启用） | 显示 `gpt-5.6-sol`、`gpt-5.6-terra`、`gpt-5.6-luna` 等裸原生 id，并按 `codexAccountMode` 使用 Pool 或 Direct。GPT-5.6 行使用默认 272,000、最大 872,000 的目录窗口；有效线程窗口由 Codex 选择。 |
+| Codex 登录（账户限定的选择器行未启用） | 显示 `gpt-5.6-sol`、`gpt-5.6-terra`、`gpt-5.6-luna` 等裸原生 id，并按 `codexAccountMode` 使用 Pool 或 Direct。GPT-5.6 行使用标称 600,000、最大 872,000 的目录窗口；应用 95% 后为 570,000。 |
 | Codex 登录（账户限定的选择器行已启用且存在有效 selector） | 为每个有效 selector 与受支持原生模型的组合显示 `<selector>/<native-openai-model>` 行。每行只使用映射账户，裸原生行会从选择器中隐藏。原生 metadata 与 context window 会保留。 |
 | OpenAI（API key） | 恰好八个命名空间行：`gpt-5.5`、`gpt-5.6`、Sol/Terra/Luna，以及三个 `*-pro` 虚拟 id（八个条目均为 1,050,000 context / 922,000 max input） |
 | OpenRouter | `openrouter/openai/gpt-5.6-sol`、`openrouter/openai/gpt-5.6-terra`、`openrouter/openai/gpt-5.6-luna`（1,050,000） |

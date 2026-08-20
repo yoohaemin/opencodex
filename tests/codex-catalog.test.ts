@@ -2564,7 +2564,7 @@ describe("Codex catalog routed normalization", () => {
   test("routed entries fall to the conservative triple instead of inheriting template context (#992)", () => {
     const template = {
       ...nativeTemplate(),
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 272_000,
     };
     const entries = buildCatalogEntries(template, [], [
@@ -2619,7 +2619,7 @@ describe("Codex catalog routed normalization", () => {
     expect((gpt56?.supported_reasoning_levels as { effort: string }[]).map(l => l.effort)).toEqual([
       "low", "medium", "high", "xhigh", "max", "ultra",
     ]);
-    expect(gpt56?.context_window).toBe(272_000);
+    expect(gpt56?.context_window).toBe(600_000);
     expect(gpt56?.max_context_window).toBe(872_000);
     expect(gpt56?.auto_compact_token_limit).toBeNull();
     expect((gpt55?.supported_reasoning_levels as { effort: string }[]).map(l => l.effort)).toEqual([
@@ -2663,7 +2663,7 @@ describe("Codex catalog routed normalization", () => {
       expect(e).not.toHaveProperty("minimal_client_version");
       expect(e).not.toHaveProperty("prefer_websockets");
       expect(e).not.toHaveProperty("supports_websockets");
-      expect(e?.context_window).toBe(272_000);
+      expect(e?.context_window).toBe(600_000);
       expect(e?.max_context_window).toBe(872_000);
       expect(e?.auto_compact_token_limit).toBeNull();
       expect(e?.tool_mode).toBe("code_mode_only");
@@ -2757,7 +2757,7 @@ describe("Codex catalog routed normalization", () => {
       ...template,
       slug: "gpt-5.4-mini",
       display_name: "GPT-5.4-Mini",
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 272_000,
       auto_compact_token_limit: 244_800,
     };
@@ -2811,7 +2811,7 @@ describe("Codex catalog routed normalization", () => {
     expect(source).toMatchObject({
       slug: NATIVE_DAYBREAK_BLUE_MODEL,
       display_name: "Daybreak Blue",
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 872_000,
       auto_compact_token_limit: null,
       comp_hash: "3000",
@@ -2892,7 +2892,7 @@ describe("Codex catalog routed normalization", () => {
       displayName: "Daybreak Blue",
       catalogKind: CODEX_CUSTOM_MODEL_CATALOG_KIND,
       codexForwardNativeCapabilityAlias: true,
-      contextWindow: 272_000,
+      contextWindow: 600_000,
       inputModalities: ["text", "image"],
       reasoningEfforts: ["low", "medium", "high", "xhigh", "max", "ultra"],
       defaultReasoningEffort: "low",
@@ -2904,7 +2904,7 @@ describe("Codex catalog routed normalization", () => {
     expect(daybreak).toMatchObject({
       slug: `openai/${NATIVE_DAYBREAK_BLUE_MODEL}`,
       display_name: "Daybreak Blue",
-      context_window: 272_000,
+      context_window: 600_000,
       max_context_window: 872_000,
       auto_compact_token_limit: null,
       comp_hash: "3000",
@@ -3031,7 +3031,7 @@ describe("Codex catalog routed normalization", () => {
     expect(sol?.genuine_marker).toBe("from-installed-catalog");
     expect(sol?.priority).toBe(1);
     for (const entry of [sol, luna]) {
-      expect(entry?.context_window).toBe(272_000);
+      expect(entry?.context_window).toBe(600_000);
       expect(entry?.max_context_window).toBe(872_000);
       expect(entry?.effective_context_window_percent).toBe(95);
       expect(entry?.auto_compact_token_limit).toBeNull();

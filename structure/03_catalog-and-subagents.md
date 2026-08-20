@@ -7,8 +7,8 @@
 - preserves native OpenAI entries from the live catalog or static fallback, and emits
   gpt-5.6 natives from the pinned upstream models.json snapshot
   (`src/codex/data/upstream-models.json` — exact per-slug ladders: luna has no ultra);
-- preserves GPT-5.6's expandable Codex window as 272,000 default / 872,000 maximum with a 95%
-  effective allowance and dynamic auto-compaction; fixed-window Claude/Grok compatibility exports
+- publishes GPT-5.6's proxy-backed Codex window as 600,000 nominal / 872,000 maximum with a 95%
+  effective allowance (570,000 usable) and dynamic auto-compaction; fixed-window Claude/Grok compatibility exports
   remain on their existing conservative 372,000-token contract;
 - upgrades either an observed selector-qualified `*/gpt-daybreak-blue-latest` account row or an
   explicitly configured canonical `openai/gpt-daybreak-blue-latest` Codex-forward row from the

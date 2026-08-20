@@ -40,7 +40,7 @@ wire id as `openai/gpt-daybreak-blue-latest` through the canonical Codex-login f
 ```
 
 Only that exact provider, endpoint, and model id receive the pinned Sol capability snapshot:
-272,000 default context, 872,000 maximum context, dynamic per-thread compaction, the native
+600,000 nominal context, 872,000 maximum context, dynamic per-thread compaction, the native
 reasoning ladder, and native Codex tool metadata. The request still sends
 `gpt-daybreak-blue-latest`; opencodex does not rewrite it to Sol,
 does not create a bare row, and does not grant account entitlement. The separately billed
@@ -68,7 +68,7 @@ Select the credential route represented by the picker id. Change Pool/Direct on 
 gpt-5.6-sol                         # bare Codex-login route via Pool or Direct
 <selector>/gpt-5.6-sol              # stored Codex account mapped by that selector
 openai-apikey/gpt-5.6-sol           # API key
-openai/gpt-daybreak-blue-latest     # explicit Codex-forward custom row (272,000 / 872,000 max)
+openai/gpt-daybreak-blue-latest     # explicit Codex-forward custom row (600,000 / 872,000 max)
 <selector>/gpt-daybreak-blue-latest # observed account-qualified native id, when available
 openai-apikey/daybreak-blue-latest  # separate API-key route (1,050,000 / 922,000)
 ```
@@ -128,9 +128,9 @@ metadata instead of an older-template approximation.
 
 | Route | Picker ids and catalog metadata |
 | --- | --- |
-| Codex login (account-qualified rows disabled) | Bare native ids such as `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`; Pool or Direct is selected through `codexAccountMode`. GPT-5.6 rows use a 272,000-token default and 872,000-token maximum; Codex selects the effective thread window. |
+| Codex login (account-qualified rows disabled) | Bare native ids such as `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`; Pool or Direct is selected through `codexAccountMode`. GPT-5.6 rows use a 600,000-token nominal window and 872,000-token maximum; Codex exposes 570,000 tokens after its 95% allowance. |
 | Codex login (account-qualified rows enabled with eligible selectors) | One `<selector>/<native-openai-model>` row per eligible selector and supported native model; each row uses only its mapped account, and bare native rows are hidden from the picker. Native metadata and context windows are preserved. |
-| Codex login (explicit Daybreak forward row) | `openai/gpt-daybreak-blue-latest` only when the exact `customModels` row is configured on the canonical `openai` provider. It keeps the Daybreak wire id and uses the pinned Sol capability snapshot (272,000 default; 872,000 maximum; dynamic per-thread compaction). |
+| Codex login (explicit Daybreak forward row) | `openai/gpt-daybreak-blue-latest` only when the exact `customModels` row is configured on the canonical `openai` provider. It keeps the Daybreak wire id and uses the pinned Sol capability snapshot (600,000 nominal; 872,000 maximum; dynamic per-thread compaction). |
 | OpenAI (API key) | Exactly ten namespaced rows: `gpt-5.5`, `gpt-5.6`, Sol/Terra/Luna, the three `*-pro` virtual ids, and the two Daybreak aliases (1,050,000 context; 922,000 max input for all ten) |
 | OpenRouter | `openrouter/openai/gpt-5.6-sol`, `openrouter/openai/gpt-5.6-terra`, `openrouter/openai/gpt-5.6-luna` (1,050,000) |
 | Cursor | Static fallback includes `cursor/gpt-5.6-sol`, `cursor/gpt-5.6-terra`, and `cursor/gpt-5.6-luna` (1,000,000), plus regular/Fast rows for Grok 4.5 and 4.6 (500,000); 4.6 adds `xhigh`, and live account discovery decides which rows remain visible. |
