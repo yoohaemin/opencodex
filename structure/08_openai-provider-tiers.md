@@ -116,7 +116,8 @@ preserving a stale one would block every later migration.
   capability metadata, but routing strips only the account selector and keeps
   `gpt-daybreak-blue-latest` byte-for-byte; it never expands the bare list or substitutes Sol.
 - API GPT-5.6 rows use 1,050,000 context tokens and 922,000 max input tokens. Codex-login rows keep
-  the native 372,000-token contract.
+  Codex's expandable native contract: 272,000 default, 872,000 maximum, 95% effective, and no
+  fixed auto-compaction limit so the selected thread window remains authoritative.
 - `*-pro` selected ids rewrite to the base wire id with `reasoning.mode: "pro"`; request logs,
   usage, model visibility, subagent state, and injection state retain the selected virtual id.
 - Compact preserves provider/selected identity but sends the base model without a reasoning object.

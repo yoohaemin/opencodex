@@ -10,7 +10,7 @@
  * catches the pathological case and stays out of the way otherwise. Every uncertainty
  * resolves toward admitting.
  */
-import { nativeOpenAiContextWindow } from "../../codex/catalog/metadata";
+import { nativeOpenAiMaxContextWindow } from "../../codex/catalog/metadata";
 import { estimateTokens } from "../../lib/token-estimate";
 import { isCanonicalOpenAiForwardProvider, OPENAI_CODEX_PROVIDER_ID } from "../../providers/openai-tiers";
 import type { OcxContentPart, OcxParsedRequest, OcxProviderConfig } from "../../types";
@@ -141,7 +141,7 @@ export function resolveInputCeiling(
     && providerName === OPENAI_CODEX_PROVIDER_ID
     && isCanonicalOpenAiForwardProvider(provider)
     && !modelId.includes("/")
-    ? positive(nativeOpenAiContextWindow(modelId))
+    ? positive(nativeOpenAiMaxContextWindow(modelId))
     : null;
 
   const window = configured ?? native;

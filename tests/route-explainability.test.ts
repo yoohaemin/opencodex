@@ -217,7 +217,7 @@ describe("route explainability (RI-09)", () => {
     expect(evidence.encryptedCodexTasks).toBe(true);
   });
 
-  test("native openai capability evidence keeps the 372k default without a cap", () => {
+  test("native openai capability evidence uses the selectable 872k maximum without a cap", () => {
     const evidence = candidateCapabilityEvidence({
       ...config(),
       providers: {
@@ -229,7 +229,7 @@ describe("route explainability (RI-09)", () => {
         },
       },
     }, "openai", "gpt-5.6-sol");
-    expect(evidence.contextWindow).toBe(372_000);
+    expect(evidence.contextWindow).toBe(872_000);
   });
 
   test("CLI logs explain encodes request ids and supports --json", async () => {

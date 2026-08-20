@@ -99,16 +99,43 @@ export function isUnsupportedOpenAiNativeSlug(slug: string): boolean {
   return /^(?:gpt|codex)-/.test(slug);
 }
 
+/** Conservative fixed window used by integrations that cannot negotiate Codex thread capacity. */
 export const NATIVE_GPT56_CONTEXT_WINDOW = 372_000;
+/** Codex's native catalog default before the session selects an expanded window. */
+export const NATIVE_GPT56_CATALOG_CONTEXT_WINDOW = 272_000;
+export const NATIVE_GPT56_MAX_CONTEXT_WINDOW = 872_000;
 
-export const NATIVE_OPENAI_CONTEXT_OVERRIDES: Record<string, { contextWindow?: number; maxContextWindow?: number }> = {
+interface NativeOpenAiContextOverride {
+  contextWindow?: number;
+  maxContextWindow?: number;
+  /** `null` delegates compaction to Codex's selected per-thread window. */
+  autoCompactTokenLimit?: number | null;
+}
+
+export const NATIVE_OPENAI_CONTEXT_OVERRIDES: Record<string, NativeOpenAiContextOverride> = {
   "gpt-5.5": { contextWindow: 272_000, maxContextWindow: 272_000 },
   "gpt-5.4": { contextWindow: 1_000_000, maxContextWindow: 1_000_000 },
   "gpt-5.3-codex-spark": { contextWindow: 100_000, maxContextWindow: 100_000 },
-  "gpt-5.6-sol": { contextWindow: NATIVE_GPT56_CONTEXT_WINDOW, maxContextWindow: NATIVE_GPT56_CONTEXT_WINDOW },
-  "gpt-5.6-terra": { contextWindow: NATIVE_GPT56_CONTEXT_WINDOW, maxContextWindow: NATIVE_GPT56_CONTEXT_WINDOW },
-  "gpt-5.6-luna": { contextWindow: NATIVE_GPT56_CONTEXT_WINDOW, maxContextWindow: NATIVE_GPT56_CONTEXT_WINDOW },
-  [NATIVE_DAYBREAK_BLUE_MODEL]: { contextWindow: NATIVE_GPT56_CONTEXT_WINDOW, maxContextWindow: NATIVE_GPT56_CONTEXT_WINDOW },
+  "gpt-5.6-sol": {
+    contextWindow: NATIVE_GPT56_CATALOG_CONTEXT_WINDOW,
+    maxContextWindow: NATIVE_GPT56_MAX_CONTEXT_WINDOW,
+    autoCompactTokenLimit: null,
+  },
+  "gpt-5.6-terra": {
+    contextWindow: NATIVE_GPT56_CATALOG_CONTEXT_WINDOW,
+    maxContextWindow: NATIVE_GPT56_MAX_CONTEXT_WINDOW,
+    autoCompactTokenLimit: null,
+  },
+  "gpt-5.6-luna": {
+    contextWindow: NATIVE_GPT56_CATALOG_CONTEXT_WINDOW,
+    maxContextWindow: NATIVE_GPT56_MAX_CONTEXT_WINDOW,
+    autoCompactTokenLimit: null,
+  },
+  [NATIVE_DAYBREAK_BLUE_MODEL]: {
+    contextWindow: NATIVE_GPT56_CATALOG_CONTEXT_WINDOW,
+    maxContextWindow: NATIVE_GPT56_MAX_CONTEXT_WINDOW,
+    autoCompactTokenLimit: null,
+  },
 };
 
 const PINNED_UPSTREAM_MODELS: Map<string, RawEntry> = new Map(
@@ -132,11 +159,29 @@ const PINNED_NATIVE_CAPABILITY_ENTRIES: Map<string, RawEntry> = new Map(
   }),
 );
 
-export function nativeOpenAiContextWindow(slug: string, contextCap?: number): number | undefined {
+/** Default context written to native Codex catalog rows. */
+export function nativeOpenAiCatalogContextWindow(slug: string, contextCap?: number): number | undefined {
   const raw = NATIVE_OPENAI_CONTEXT_OVERRIDES[slug]?.contextWindow
     ?? (typeof PINNED_NATIVE_CAPABILITY_ENTRIES.get(slug)?.context_window === "number"
       ? PINNED_NATIVE_CAPABILITY_ENTRIES.get(slug)!.context_window as number
       : undefined);
+  return applyProviderContextCap(raw, contextCap) ?? raw;
+}
+
+/** Fixed compatibility window for clients that cannot negotiate a Codex thread window. */
+export function nativeOpenAiContextWindow(slug: string, contextCap?: number): number | undefined {
+  const raw = nativeOpenAiCapabilitySourceSlug(slug).startsWith("gpt-5.6-")
+    ? NATIVE_GPT56_CONTEXT_WINDOW
+    : nativeOpenAiCatalogContextWindow(slug);
+  return applyProviderContextCap(raw, contextCap) ?? raw;
+}
+
+/** Largest native window Codex may select for the account/session. */
+export function nativeOpenAiMaxContextWindow(slug: string, contextCap?: number): number | undefined {
+  const raw = NATIVE_OPENAI_CONTEXT_OVERRIDES[slug]?.maxContextWindow
+    ?? (typeof PINNED_NATIVE_CAPABILITY_ENTRIES.get(slug)?.max_context_window === "number"
+      ? PINNED_NATIVE_CAPABILITY_ENTRIES.get(slug)!.max_context_window as number
+      : nativeOpenAiCatalogContextWindow(slug));
   return applyProviderContextCap(raw, contextCap) ?? raw;
 }
 

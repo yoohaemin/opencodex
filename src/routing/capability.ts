@@ -17,7 +17,7 @@ import { applyProviderContextCap, providerContextCap } from "../providers/contex
 import { PROVIDER_REGISTRY } from "../providers/registry";
 import {
   nativeInputModalities,
-  nativeOpenAiContextWindow,
+  nativeOpenAiMaxContextWindow,
   nativeParallelToolCalls,
   nativeReasoningEfforts,
 } from "../codex/catalog/metadata";
@@ -148,7 +148,8 @@ function localRemoteEvidence(baseUrl: string | undefined): Pick<RouteCapabilityE
 /**
  * Assemble canonical capability evidence for one `provider/model` candidate.
  * Sources (in priority order): provider config maps, provider registry hints,
- * cached Codex catalog row, native-model metadata.
+ * native maximum metadata, cached Codex catalog row. Native routing uses the
+ * selectable maximum rather than the catalog's smaller per-thread default.
  */
 export function candidateCapabilityEvidence(
   config: OcxConfig,
@@ -163,8 +164,7 @@ export function candidateCapabilityEvidence(
   const rawContextWindow = provider?.modelContextWindows?.[modelId]
     ?? provider?.contextWindow
     ?? registryEntry?.modelContextWindows?.[modelId]
-    ?? catalogRow?.contextWindow
-    ?? (isNative ? nativeOpenAiContextWindow(modelId) : undefined);
+    ?? (isNative ? nativeOpenAiMaxContextWindow(modelId) : catalogRow?.contextWindow);
   // providerContextCaps.openai also ceilings native OpenAI rows (#1430), so routing
   // evidence never contradicts a capped catalog entry.
   const contextWindow = isNative

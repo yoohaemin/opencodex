@@ -377,9 +377,9 @@ test("convergence preserves an observed account-only native id without creating 
   expect(daybreak).toMatchObject({
     visibility: "list",
     opencodex_catalog_kind: CODEX_ACCOUNT_BOUND_CATALOG_KIND,
-    context_window: 372_000,
-    max_context_window: 372_000,
-    auto_compact_token_limit: 334_800,
+    context_window: 272_000,
+    max_context_window: 872_000,
+    auto_compact_token_limit: null,
     comp_hash: "3000",
     tool_mode: "code_mode_only",
     use_responses_lite: true,

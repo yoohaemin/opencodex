@@ -2,7 +2,7 @@ import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyNativeVisibility, augmentRoutedModelsWithMetadata, augmentRoutedModelsWithRegistryOpenAiApiRows, buildCatalogEntries, buildComboCatalogOmission, catalogModelSlug, clampCatalogModelsToCodexSupport, clampEntryToCodexSupportedEfforts, clampedDefaultEffort, CODEX_ACCOUNT_BOUND_CATALOG_KIND, CODEX_NATIVE_ALIAS_CATALOG_KIND, comboCatalogOmissionReason, deriveComboCatalogModel, exactComboCatalogSlugs, filterCatalogVisibleModels, filterSupportedNativeSlugs, gatherRoutedModels as gatherRoutedModelsDirect, isDatedVariantId, isMediaGenerationModelId, loadBundledCodexCatalog, materializeBundledCodexCatalog, mergeCatalogEntriesForSync, NATIVE_DAYBREAK_BLUE_MODEL, NATIVE_OPENAI_MODELS, nativeDefaultReasoningEffort, nativeInputModalities, nativeOpenAiCapabilitySourceSlug, nativeOpenAiContextWindow, nativeReasoningEfforts, normalizeRoutedCatalogEntry, resetCatalogRuntimeStateForTests, resetOpenAiApiCatalogWarningStateForTests, resolveComboCatalogMember, shouldExposeRoutedModel, upstreamNativeEntry } from "../src/codex/catalog";
+import { applyNativeVisibility, augmentRoutedModelsWithMetadata, augmentRoutedModelsWithRegistryOpenAiApiRows, buildCatalogEntries, buildComboCatalogOmission, catalogModelSlug, clampCatalogModelsToCodexSupport, clampEntryToCodexSupportedEfforts, clampedDefaultEffort, CODEX_ACCOUNT_BOUND_CATALOG_KIND, CODEX_NATIVE_ALIAS_CATALOG_KIND, comboCatalogOmissionReason, deriveComboCatalogModel, exactComboCatalogSlugs, filterCatalogVisibleModels, filterSupportedNativeSlugs, gatherRoutedModels as gatherRoutedModelsDirect, isDatedVariantId, isMediaGenerationModelId, loadBundledCodexCatalog, materializeBundledCodexCatalog, mergeCatalogEntriesForSync, NATIVE_DAYBREAK_BLUE_MODEL, NATIVE_OPENAI_MODELS, nativeDefaultReasoningEffort, nativeInputModalities, nativeOpenAiCapabilitySourceSlug, nativeOpenAiContextWindow, nativeOpenAiMaxContextWindow, nativeReasoningEfforts, normalizeRoutedCatalogEntry, resetCatalogRuntimeStateForTests, resetOpenAiApiCatalogWarningStateForTests, resolveComboCatalogMember, shouldExposeRoutedModel, upstreamNativeEntry } from "../src/codex/catalog";
 import {
   CODEX_CUSTOM_MODEL_CATALOG_KIND,
   CODEX_PROVIDER_MODEL_CATALOG_KIND,
@@ -2619,9 +2619,9 @@ describe("Codex catalog routed normalization", () => {
     expect((gpt56?.supported_reasoning_levels as { effort: string }[]).map(l => l.effort)).toEqual([
       "low", "medium", "high", "xhigh", "max", "ultra",
     ]);
-    expect(gpt56?.context_window).toBe(372_000);
-    expect(gpt56?.max_context_window).toBe(372_000);
-    expect(gpt56?.auto_compact_token_limit).toBe(334_800);
+    expect(gpt56?.context_window).toBe(272_000);
+    expect(gpt56?.max_context_window).toBe(872_000);
+    expect(gpt56?.auto_compact_token_limit).toBeNull();
     expect((gpt55?.supported_reasoning_levels as { effort: string }[]).map(l => l.effort)).toEqual([
       "low", "medium", "high", "xhigh", "max", "ultra",
     ]);
@@ -2663,7 +2663,9 @@ describe("Codex catalog routed normalization", () => {
       expect(e).not.toHaveProperty("minimal_client_version");
       expect(e).not.toHaveProperty("prefer_websockets");
       expect(e).not.toHaveProperty("supports_websockets");
-      expect(e?.context_window).toBe(372_000);
+      expect(e?.context_window).toBe(272_000);
+      expect(e?.max_context_window).toBe(872_000);
+      expect(e?.auto_compact_token_limit).toBeNull();
       expect(e?.tool_mode).toBe("code_mode_only");
       expect(e?.use_responses_lite).toBe(true);
     }
@@ -2786,9 +2788,11 @@ describe("Codex catalog routed normalization", () => {
 
   test("nativeOpenAiContextWindow applies the openai cap as a ceiling only when provided", () => {
     expect(nativeOpenAiContextWindow("gpt-5.6-sol")).toBe(372_000);
+    expect(nativeOpenAiMaxContextWindow("gpt-5.6-sol")).toBe(872_000);
     expect(nativeOpenAiContextWindow("gpt-5.6-sol", 272_000)).toBe(272_000);
     // A cap above the native value is a ceiling, not a floor.
     expect(nativeOpenAiContextWindow("gpt-5.6-sol", 500_000)).toBe(372_000);
+    expect(nativeOpenAiMaxContextWindow("gpt-5.6-sol", 500_000)).toBe(500_000);
     // Non-5.6 natives are capped the same way.
     expect(nativeOpenAiContextWindow("gpt-5.4", 272_000)).toBe(272_000);
   });
@@ -2797,6 +2801,7 @@ describe("Codex catalog routed normalization", () => {
     expect(NATIVE_DAYBREAK_BLUE_MODEL).toBe("gpt-daybreak-blue-latest");
     expect(nativeOpenAiCapabilitySourceSlug(NATIVE_DAYBREAK_BLUE_MODEL)).toBe("gpt-5.6-sol");
     expect(nativeOpenAiContextWindow(NATIVE_DAYBREAK_BLUE_MODEL)).toBe(372_000);
+    expect(nativeOpenAiMaxContextWindow(NATIVE_DAYBREAK_BLUE_MODEL)).toBe(872_000);
     expect(nativeInputModalities(NATIVE_DAYBREAK_BLUE_MODEL)).toEqual(["text", "image"]);
     expect(nativeReasoningEfforts(NATIVE_DAYBREAK_BLUE_MODEL))
       .toEqual(["low", "medium", "high", "xhigh", "max", "ultra"]);
@@ -2806,8 +2811,9 @@ describe("Codex catalog routed normalization", () => {
     expect(source).toMatchObject({
       slug: NATIVE_DAYBREAK_BLUE_MODEL,
       display_name: "Daybreak Blue",
-      context_window: 372_000,
-      max_context_window: 372_000,
+      context_window: 272_000,
+      max_context_window: 872_000,
+      auto_compact_token_limit: null,
       comp_hash: "3000",
       tool_mode: "code_mode_only",
       use_responses_lite: true,
@@ -2839,7 +2845,7 @@ describe("Codex catalog routed normalization", () => {
     const daybreak = projected.find(entry => entry.slug === `main/${NATIVE_DAYBREAK_BLUE_MODEL}`);
     const sol = projected.find(entry => entry.slug === "gpt-5.6-sol");
     expect(daybreak).toBeDefined();
-    expect(daybreak?.auto_compact_token_limit).toBe(334_800);
+    expect(daybreak?.auto_compact_token_limit).toBeNull();
     expect(daybreak).toMatchObject({
       context_window: sol?.context_window,
       max_context_window: sol?.max_context_window,
@@ -2886,7 +2892,7 @@ describe("Codex catalog routed normalization", () => {
       displayName: "Daybreak Blue",
       catalogKind: CODEX_CUSTOM_MODEL_CATALOG_KIND,
       codexForwardNativeCapabilityAlias: true,
-      contextWindow: 372_000,
+      contextWindow: 272_000,
       inputModalities: ["text", "image"],
       reasoningEfforts: ["low", "medium", "high", "xhigh", "max", "ultra"],
       defaultReasoningEffort: "low",
@@ -2898,9 +2904,9 @@ describe("Codex catalog routed normalization", () => {
     expect(daybreak).toMatchObject({
       slug: `openai/${NATIVE_DAYBREAK_BLUE_MODEL}`,
       display_name: "Daybreak Blue",
-      context_window: 372_000,
-      max_context_window: 372_000,
-      auto_compact_token_limit: 334_800,
+      context_window: 272_000,
+      max_context_window: 872_000,
+      auto_compact_token_limit: null,
       comp_hash: "3000",
       tool_mode: "code_mode_only",
       use_responses_lite: true,
@@ -3004,8 +3010,8 @@ describe("Codex catalog routed normalization", () => {
         { effort: "low", description: "l" }, { effort: "max", description: "m" }, { effort: "ultra", description: "u" },
       ],
     };
-    // Genuine: real display name — must be preserved untouched (installed codex is SoT once
-    // it catches up), marker field proves no replacement happened.
+    // Genuine: real display name — preserve its identity while final native normalization repairs
+    // the expandable context contract. The marker proves no whole-row replacement happened.
     const genuineSol = {
       ...nativeTemplate(),
       slug: "gpt-5.6-sol",
@@ -3024,6 +3030,12 @@ describe("Codex catalog routed normalization", () => {
     expect(luna?.priority).toBe(3); // upstream priority restored for the upgraded entry
     expect(sol?.genuine_marker).toBe("from-installed-catalog");
     expect(sol?.priority).toBe(1);
+    for (const entry of [sol, luna]) {
+      expect(entry?.context_window).toBe(272_000);
+      expect(entry?.max_context_window).toBe(872_000);
+      expect(entry?.effective_context_window_percent).toBe(95);
+      expect(entry?.auto_compact_token_limit).toBeNull();
+    }
   });
 
   test("fallback-quality upgrades restore snapshot metadata without losing pristine priority", () => {

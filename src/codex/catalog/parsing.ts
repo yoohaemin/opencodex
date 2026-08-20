@@ -110,6 +110,10 @@ export interface CatalogModel {
   reasoningEfforts?: string[];
   defaultReasoningEffort?: string;
   contextWindow?: number;
+  /** Optional expandable ceiling distinct from the default catalog window. */
+  maxContextWindow?: number;
+  /** Explicit `null` delegates compaction to Codex's selected per-thread window. */
+  autoCompactTokenLimit?: number | null;
   maxInputTokens?: number;
   contextCap?: number;
   contextCapped?: boolean;
@@ -252,10 +256,16 @@ export function normalizeServiceTiers(entry: RawEntry): RawEntry {
 }
 
 export function ensureAutoCompactTokenLimit(entry: RawEntry): RawEntry {
+  const delegatesExpandableNativeCompaction = catalogEntryIsNativeChatGpt(entry)
+    && entry.auto_compact_token_limit === null
+    && typeof entry.context_window === "number"
+    && typeof entry.max_context_window === "number"
+    && entry.max_context_window > entry.context_window;
   if (
     typeof entry.context_window === "number"
     && entry.context_window > 0
     && typeof entry.auto_compact_token_limit !== "number"
+    && !delegatesExpandableNativeCompaction
   ) {
     entry.auto_compact_token_limit = Math.floor(entry.context_window * 0.9);
   }
@@ -275,7 +285,11 @@ export function applyNativeOpenAiContextOverride(entry: RawEntry, contextCap?: n
     if (typeof override.contextWindow === "number") {
       const contextWindow = applyProviderContextCap(override.contextWindow, contextCap) ?? override.contextWindow;
       entry.context_window = contextWindow;
-      entry.auto_compact_token_limit = Math.floor(contextWindow * 0.9);
+      if (Object.hasOwn(override, "autoCompactTokenLimit")) {
+        entry.auto_compact_token_limit = override.autoCompactTokenLimit ?? null;
+      } else {
+        entry.auto_compact_token_limit = Math.floor(contextWindow * 0.9);
+      }
     }
     if (typeof override.maxContextWindow === "number") {
       entry.max_context_window = applyProviderContextCap(override.maxContextWindow, contextCap) ?? override.maxContextWindow;
@@ -330,7 +344,7 @@ export function ensureStrictCatalogFields(
   if (
     typeof entry.max_context_window !== "number"
     || entry.max_context_window <= 0
-    || ((options.isRouted === true || !isNativeOpenAiEntry(entry)) && entry.max_context_window > contextWindow)
+    || (!catalogEntryIsNativeChatGpt(entry) && entry.max_context_window > contextWindow)
   ) {
     entry.max_context_window = contextWindow;
   }

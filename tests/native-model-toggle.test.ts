@@ -306,9 +306,9 @@ describe("native GPT model toggles (bare slugs in disabledModels)", () => {
     applyNativeOpenAiContextOverride(malformed);
     applyNativeOpenAiContextOverride(unmarked);
     expect(trusted).toMatchObject({
-      context_window: 372_000,
-      max_context_window: 372_000,
-      auto_compact_token_limit: 334_800,
+      context_window: 272_000,
+      max_context_window: 872_000,
+      auto_compact_token_limit: null,
     });
     expect(malformed).toMatchObject({
       context_window: 128_000,

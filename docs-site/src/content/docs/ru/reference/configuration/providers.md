@@ -385,8 +385,8 @@ malformed-результаты откатываются к stale/configured fall
 Preview fallback-записи GPT-5.6 используют тот же механизм. Preset OpenAI API-key заранее засевает
 base- и Pro-id с context `1050000` и max input `922000`; OpenRouter заранее засевает
 `openai/gpt-5.6-sol`, `openai/gpt-5.6-terra` и `openai/gpt-5.6-luna` с context `1050000`.
-Pool/Direct рекламирует `372000`; синхронизированный каталог показывает `max`, сохраняя при этом
-отдельную ступень `xhigh`.
+Pool/Direct использует `272000` по умолчанию, максимум `872000` и динамическое сжатие для каждого потока;
+синхронизированный каталог показывает `max`, сохраняя при этом отдельную ступень `xhigh`.
 
 ```json
 {

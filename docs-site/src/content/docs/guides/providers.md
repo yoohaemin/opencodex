@@ -477,7 +477,7 @@ visible even while live catalogs lag:
 
 | Codex route | Seeded model ids | Codex-visible context |
 | --- | --- | --- |
-| Codex login (Pool or Direct) | `gpt-5.6-*` | 372,000 |
+| Codex login (Pool or Direct) | `gpt-5.6-*` | 272,000 default / 872,000 max; Codex selects the thread window |
 | OpenAI (API key) | `openai-apikey/gpt-5.6-*` plus `*-pro` | 1,050,000 (922,000 max input) |
 | OpenRouter | `openrouter/openai/gpt-5.6-sol`, `openrouter/openai/gpt-5.6-terra`, `openrouter/openai/gpt-5.6-luna` | 1,050,000 |
 | Cursor | `cursor/gpt-5.6-sol`, `cursor/gpt-5.6-terra`, `cursor/gpt-5.6-luna` | 1,000,000 |

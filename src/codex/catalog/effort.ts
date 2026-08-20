@@ -124,11 +124,15 @@ export function applyCatalogModelMetadata(entry: RawEntry, model?: CatalogModel)
   if (displayName) entry.display_name = displayName;
   if (typeof model.contextWindow === "number" && model.contextWindow > 0) {
     entry.context_window = model.contextWindow;
-    entry.max_context_window = model.contextWindow;
-    entry.auto_compact_token_limit = Math.min(
-      Math.floor(model.contextWindow * 0.9),
-      model.maxInputTokens ?? Number.POSITIVE_INFINITY,
-    );
+    entry.max_context_window = typeof model.maxContextWindow === "number" && model.maxContextWindow > 0
+      ? model.maxContextWindow
+      : model.contextWindow;
+    entry.auto_compact_token_limit = Object.hasOwn(model, "autoCompactTokenLimit")
+      ? model.autoCompactTokenLimit ?? null
+      : Math.min(
+        Math.floor(model.contextWindow * 0.9),
+        model.maxInputTokens ?? Number.POSITIVE_INFINITY,
+      );
   }
   if (Array.isArray(model.inputModalities) && model.inputModalities.length > 0) {
     entry.input_modalities = model.inputModalities;

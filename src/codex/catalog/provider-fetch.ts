@@ -74,7 +74,7 @@ import { createAdmissionGate, ResourceAdmissionError, type AdmissionMetrics } fr
 
 import { CODEX_CUSTOM_MODEL_CATALOG_KIND, JAWCODE_CATALOG_AUGMENT_PROVIDERS, catalogModelSlug, shouldExposeRoutedModel } from "./parsing";
 import type { CatalogModel } from "./parsing";
-import { disabledNativeSlugs, hasComboTargets, isNativeOpenAiCapabilityAliasModel, nativeDefaultReasoningEffort, nativeInputModalities, nativeOpenAiContextWindow, nativeOpenAiSlugs, nativeParallelToolCalls, nativeReasoningEfforts } from "./metadata";
+import { disabledNativeSlugs, hasComboTargets, isNativeOpenAiCapabilityAliasModel, nativeDefaultReasoningEffort, nativeInputModalities, nativeOpenAiCatalogContextWindow, nativeOpenAiContextWindow, nativeOpenAiMaxContextWindow, nativeOpenAiSlugs, nativeParallelToolCalls, nativeReasoningEfforts } from "./metadata";
 import { deriveComboCatalogModel, normalizedOpenAiApiSignature, openAiApiCollisionWarnings, replaceLastComboCatalogOmissions, warnUncataloguedComboOnce } from "./aggregation";
 import type { ComboCatalogOmission } from "./aggregation";
 import type { CatalogGatherProviderAuthEvidence } from "./filesystem-evidence";
@@ -1781,13 +1781,21 @@ async function gatherRoutedModelsUncached(
       && isCanonicalOpenAiForwardProvider(providerForCanonicalCheck)
       && isNativeOpenAiCapabilityAliasModel(cm.modelId);
     const nativeAliasContextWindow = codexForwardNativeCapabilityAlias
-      ? nativeOpenAiContextWindow(cm.modelId, providerContextCap(config, OPENAI_CODEX_PROVIDER_ID))
+      ? nativeOpenAiCatalogContextWindow(cm.modelId, providerContextCap(config, OPENAI_CODEX_PROVIDER_ID))
+      : undefined;
+    const nativeAliasMaxContextWindow = codexForwardNativeCapabilityAlias
+      ? nativeOpenAiMaxContextWindow(cm.modelId, providerContextCap(config, OPENAI_CODEX_PROVIDER_ID))
       : undefined;
     const customContextWindow = cm.contextWindow
       ? nativeAliasContextWindow !== undefined
         ? Math.min(cm.contextWindow, nativeAliasContextWindow)
         : cm.contextWindow
       : nativeAliasContextWindow;
+    const customMaxContextWindow = nativeAliasMaxContextWindow === undefined
+      ? undefined
+      : cm.contextWindow
+        ? Math.min(cm.contextWindow, nativeAliasMaxContextWindow)
+        : nativeAliasMaxContextWindow;
     const nativeAliasDefaultEffort = codexForwardNativeCapabilityAlias
       ? nativeDefaultReasoningEffort(cm.modelId)
       : undefined;
@@ -1804,6 +1812,12 @@ async function gatherRoutedModelsUncached(
         ? { displayName: cm.displayName }
         : codexForwardNativeCapabilityAlias ? { displayName: "Daybreak Blue" } : {}),
       ...(customContextWindow !== undefined ? { contextWindow: customContextWindow } : {}),
+      ...(customMaxContextWindow !== undefined ? {
+        maxContextWindow: customMaxContextWindow,
+        ...(customContextWindow !== undefined && customMaxContextWindow > customContextWindow
+          ? { autoCompactTokenLimit: null }
+          : {}),
+      } : {}),
       ...(cm.inputModalities
         ? { inputModalities: cm.inputModalities }
         : codexForwardNativeCapabilityAlias ? { inputModalities: nativeInputModalities(cm.modelId) } : {}),
